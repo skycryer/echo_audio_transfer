@@ -1,0 +1,151 @@
+alias: set echo play music
+description: ""
+trigger:
+  - platform: event
+    event_type: echo_dot
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: media_player.spotify_christian_schimanski
+            state: playing
+          - condition: template
+            value_template: >-
+              {{ state_attr("media_player.spotify_christian_schimanski",
+              "media_content_id") != None }}
+          - condition: template
+            value_template: '{{ trigger.event.data["device"] == "christian" }}'
+        sequence:
+          - service: homeassistant.update_entity
+            metadata: {}
+            data: {}
+            target:
+              entity_id:
+                - media_player.spotify_christian_schimanski
+                - media_player.arbeitszimmer
+                - media_player.wohnzimmer
+                - media_player.schlafzimmer
+                - media_player.kuche
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 0
+              milliseconds: 500
+          - service: media_player.select_source
+            data:
+              source: |
+                {{ trigger.event.data["room"] }}
+            target:
+              entity_id: media_player.spotify_zuhause
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 0
+              milliseconds: 500
+          - service: media_player.play_media
+            data:
+              media_content_type: music
+              media_content_id: >
+                {{ state_attr('media_player.spotify_christian_schimanski',
+                'media_content_id') }}
+            target:
+              entity_id: media_player.spotify_zuhause
+          - service: media_player.media_seek
+            data:
+              seek_position: >
+                {{ state_attr("media_player.spotify_christian_schimanski",
+                "media_position") | int }}
+            target:
+              entity_id: media_player.spotify_zuhause
+          - service: media_player.media_pause
+            metadata: {}
+            data: {}
+            target:
+              entity_id: media_player.spotify_christian_schimanski
+          - wait_for_trigger:
+              - platform: state
+                entity_id:
+                  - media_player.spotify_zuhause
+                from: playing
+                to: paused
+          - service: media_player.shuffle_set
+            metadata: {}
+            data:
+              shuffle: true
+            target:
+              entity_id: media_player.spotify_zuhause
+          - service: media_player.play_media
+            data:
+              media_content_type: playlist
+              media_content_id: >-
+                https://open.spotify.com/playlist/37i9dQZEVXbNG2KDcFcKOF?si=7d4e03bd0d0047db
+            target:
+              entity_id: media_player.spotify_zuhause
+      - conditions:
+          - condition: state
+            entity_id: media_player.spotify_zuhause
+            state: playing
+          - condition: template
+            value_template: '{{ trigger.event.data["device"] == "christian" }}'
+        sequence:
+          - service: homeassistant.update_entity
+            metadata: {}
+            data: {}
+            target:
+              entity_id:
+                - media_player.spotify_christian_schimanski
+                - media_player.arbeitszimmer
+                - media_player.wohnzimmer
+                - media_player.schlafzimmer
+                - media_player.kuche
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 0
+              milliseconds: 500
+          - service: media_player.play_media
+            data:
+              media_content_type: music
+              media_content_id: >
+                {{ state_attr('media_player.spotify_zuhause',
+                'media_content_id') }}
+            target:
+              entity_id: media_player.spotify_christian_schimanski
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 0
+              milliseconds: 500
+          - service: media_player.media_seek
+            data:
+              seek_position: >
+                {{ state_attr("media_player.spotify_zuhause", "media_position")
+                | int }}
+            target:
+              entity_id: media_player.spotify_christian_schimanski
+          - service: media_player.media_pause
+            metadata: {}
+            data: {}
+            target:
+              entity_id: media_player.spotify_zuhause
+          - wait_for_trigger:
+              - platform: state
+                entity_id:
+                  - media_player.spotify_christian_schimanski
+                from: playing
+                to: paused
+          - service: media_player.shuffle_set
+            metadata: {}
+            data:
+              shuffle: true
+            target:
+              entity_id: media_player.spotify_christian_schimanski
+          - service: media_player.play_media
+            data:
+              media_content_type: playlist
+              media_content_id: >-
+                https://open.spotify.com/playlist/37i9dQZEVXbNG2KDcFcKOF?si=7d4e03bd0d0047db
+            target:
+              entity_id: media_player.spotify_christian_schimanski
+mode: restart
